@@ -1,34 +1,22 @@
 package application;
 
-import com.google.gson.GsonBuilder;
+import com.victorkzk.furniture.Deserializer;
 import com.victorkzk.furniture.Furniture;
+import com.victorkzk.furniture.Serializer;
 import furniture.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.ResourceBundle;
-
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Paths.get;
+import java.util.*;
 
 
 public class Controller implements Initializable {
@@ -39,19 +27,27 @@ public class Controller implements Initializable {
     @FXML
     private TextField heightField;
     @FXML
-    private ChoiceBox typeBox;
+    private ChoiceBox<Object> typeBox;
     @FXML
-    private ChoiceBox materialBox;
+    private ChoiceBox<Object> materialBox;
     @FXML
     private ListView listView;
     @FXML
     private Pane pane;
+    @FXML
+    private CheckBox pluginSerializerCheckBox;
+    @FXML
+    private CheckBox pluginDeserializerCheckBox;
+
 
     private ObservableList<Furniture> furnitureList = FXCollections.observableArrayList();
     private static ArrayList<Class> plugins = new ArrayList<>();
-
-    Furniture furniture = null;
-    boolean createNew = false;
+    private Class pluginSerializerClass = null;
+    private Class pluginDeserializerClass = null;
+    private Serializer serializer = new JSONSerializer();
+    private Deserializer deserializer = new JSONDeserializer();
+    private Furniture furniture = null;
+    private boolean createNew = false;
 
     @FXML
     private void tableBtnClick() {
@@ -134,6 +130,17 @@ public class Controller implements Initializable {
         );
     }
 
+    private void loadClassesToDeserializer() {
+        deserializer.addClass(Bed.class);
+        deserializer.addClass(Cabinetry.class);
+        deserializer.addClass(Chair.class);
+        deserializer.addClass(Desk.class);
+        deserializer.addClass(Table.class);
+        for (Class c : plugins) {
+            deserializer.addClass(c);
+        }
+    }
+
     private void setFields() {
         if (furniture == null)
             return;
@@ -145,26 +152,26 @@ public class Controller implements Initializable {
     }
 
     private void initMaterialList() {
-        materialBox.setItems(FXCollections.observableArrayList(furniture.getMaterialList()));
+        materialBox.setItems(FXCollections.observableArrayList(Furniture.getMaterialList()));
     }
 
     @FXML
-    private void serializeClick() throws FileNotFoundException {
-        GsonBuilder gson = new GsonBuilder();
-        gson.registerTypeAdapter(Furniture.class, new AbstractElementAdapter());
-        String json = gson.setPrettyPrinting().create().toJson(furnitureList.toArray(), Furniture[].class);
-        PrintWriter writer = new PrintWriter("FurnitureList.json");
-        writer.write(json);
-        writer.close();
+    private void serializeClick() throws FileNotFoundException, InstantiationException, IllegalAccessException {
+        List<Object> objectList = new ArrayList<>(furnitureList.size());
+        for (Furniture furniture : furnitureList) {
+            objectList.add(furniture);
+        }
+        serializer.serialize("FurnitureList" + serializer.getFileExtension(), objectList);
     }
 
     @FXML
-    private void deserializeClick() throws IOException {
-        GsonBuilder gson = new GsonBuilder();
-        gson.registerTypeAdapter(Furniture.class, new AbstractElementAdapter());
-        Furniture[] furnitureArray= gson.create().fromJson((new String(readAllBytes(get("FurnitureList.json")))),
-                Furniture[].class);
-        furnitureList = FXCollections.observableArrayList(Arrays.asList(furnitureArray));
+    private void deserializeClick() throws IOException, InstantiationException, IllegalAccessException {
+        loadClassesToDeserializer();
+        List<Object> objectList = deserializer.deserialize("FurnitureList" + deserializer.getFileExtension());
+        furnitureList.clear();
+        for (Object object : objectList) {
+            furnitureList.add((Furniture)object);
+        }
         listView.setItems(furnitureList);
     }
 
@@ -177,19 +184,52 @@ public class Controller implements Initializable {
         createButton(plugins.size() - 1);
     }
 
+    @FXML
+    private void loadSerializer() {
+        FileChooser fileChooser = new FileChooser();
+        File file = fileChooser.showOpenDialog(null);
+        PluginLoader pluginLoader = new PluginLoader(file);
+        pluginSerializerClass = pluginLoader.loadSerializer();
 
+    }
+
+    @FXML
+    private void loadDeserializer() {
+        FileChooser fileChooser = new FileChooser();
+        File file = fileChooser.showOpenDialog(null);
+        PluginLoader pluginLoader = new PluginLoader(file);
+        pluginDeserializerClass = pluginLoader.loadDeserializer();
+    }
+
+    @FXML
+    void enableSerializerPlugin() throws IllegalAccessException, InstantiationException {
+        if (serializer.getClass() == pluginSerializerClass) {
+            serializer = new JSONSerializer();
+        }
+        else {
+            serializer = (Serializer)pluginSerializerClass.newInstance();
+        }
+    }
+
+    @FXML
+    void enableDeserializerPlugin() throws IllegalAccessException, InstantiationException {
+        if (deserializer.getClass() == pluginDeserializerClass) {
+            deserializer = new JSONDeserializer();
+        }
+        else {
+            deserializer = (Deserializer)pluginDeserializerClass.newInstance();
+        }
+    }
 
     private void createButton(int index) {
         Furniture newFurniture = createFurniture(index);
         Button button = new Button();
         button.setText(newFurniture.toString());
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                clearFields();
-                createNew = true;
-                furniture = createFurniture(index);
-                updateTypeList();
-            }
+        button.setOnAction(e -> {
+            clearFields();
+            createNew = true;
+            furniture = createFurniture(index);
+            updateTypeList();
         });
         button.setLayoutY(index * 31);
         button.setPrefWidth(117);
@@ -200,15 +240,10 @@ public class Controller implements Initializable {
         try {
             Class[] cArg = new Class[3];
             cArg[0] = cArg[1] = cArg[2] = int.class;
-            Furniture res = (Furniture)plugins.get(index).getDeclaredConstructor(cArg).newInstance(0, 0, 0);
-            return res;
+            return (Furniture)plugins.get(index).getDeclaredConstructor(cArg).newInstance(0, 0, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static ArrayList<Class> getLoadedPlugins() {
-        return plugins;
     }
 }

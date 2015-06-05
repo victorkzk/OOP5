@@ -8,9 +8,11 @@ import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.*;
 
 public class PluginLoader {
 
+    private static Logger logger = Logger.getLogger(PluginLoader.class.getName());
     private File pluginFile;
 
     public PluginLoader(File file) {
@@ -37,11 +39,51 @@ public class PluginLoader {
                 }
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "MalformedURLException: " + e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "IOException: " + e);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "ClassNotFoundException: " + e);
+        }
+        return null;
+    }
+
+    public Class loadSerializer() {
+        return loadPluginByInterfaceName("Serializer");
+    }
+
+    public Class loadDeserializer() {
+        return null;
+    }
+
+    private Class loadPluginByInterfaceName(String interfaceName) {
+        try {
+            URL jarURL = pluginFile.toURI().toURL();
+            URLClassLoader classLoader = new URLClassLoader(new URL[]{jarURL});
+            JarFile jarFile = new JarFile(pluginFile);
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                String name = entries.nextElement().getName();
+                if (name.endsWith(".class")) {
+                    name = name.replaceAll("/", ".");
+                    name = name.replaceAll(".class", "");
+                    Class <?> plugClass = classLoader.loadClass(name);
+                    Class<?>[] interfaces = plugClass.getInterfaces();
+
+                    System.out.println(interfaces[0].getName());
+
+                    if (interfaces[0].getName().endsWith(".Furniture")) {
+                        Class furnitureClass = classLoader.loadClass(plugClass.getName());
+                        return furnitureClass;
+                    }
+                }
+            }
+        } catch (MalformedURLException e) {
+            logger.log(Level.SEVERE, "MalformedURLException: " + e);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "IOException: " + e);
+        } catch (ClassNotFoundException e) {
+            logger.log(Level.SEVERE, "ClassNotFoundException: " + e);
         }
         return null;
     }
