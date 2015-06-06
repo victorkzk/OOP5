@@ -10,6 +10,10 @@ public class Cabinetry extends Furniture {
 
     private Type type;
 
+    public Cabinetry() {
+
+    }
+
     public Cabinetry(int length, int width, int height) {
         super(length, width, height);
         super.name = "Cabinetry";

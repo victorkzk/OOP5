@@ -38,6 +38,8 @@ public class Controller implements Initializable {
     private CheckBox pluginSerializerCheckBox;
     @FXML
     private CheckBox pluginDeserializerCheckBox;
+    @FXML
+    private CheckBox pluginArchiverCheckBox;
 
 
     private ObservableList<Furniture> furnitureList = FXCollections.observableArrayList();
@@ -190,7 +192,7 @@ public class Controller implements Initializable {
         File file = fileChooser.showOpenDialog(null);
         PluginLoader pluginLoader = new PluginLoader(file);
         pluginSerializerClass = pluginLoader.loadSerializer();
-
+        pluginSerializerCheckBox.setDisable(false);
     }
 
     @FXML
@@ -199,6 +201,7 @@ public class Controller implements Initializable {
         File file = fileChooser.showOpenDialog(null);
         PluginLoader pluginLoader = new PluginLoader(file);
         pluginDeserializerClass = pluginLoader.loadDeserializer();
+        pluginDeserializerCheckBox.setDisable(false);
     }
 
     @FXML

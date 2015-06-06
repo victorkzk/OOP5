@@ -10,6 +10,10 @@ public class Table extends Furniture {
 
     private Type type;
 
+    public Table() {
+
+    }
+
     public Table(int length, int width, int height) {
         super(length, width, height);
         super.name = "Table";

@@ -34,5 +34,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" exported="" name="xstream-1.4.4" level="project" />
+    <orderEntry type="library" name="archivationPlugin_2" level="project" />
   </component>
 </module>

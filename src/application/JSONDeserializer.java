@@ -1,15 +1,16 @@
 package application;
 
 import com.google.gson.*;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.victorkzk.furniture.Deserializer;
 import com.victorkzk.furniture.Furniture;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
@@ -17,11 +18,11 @@ import static java.nio.file.Paths.get;
 
 public class JSONDeserializer implements Deserializer {
 
-    Set<Class> classList = new HashSet<Class>();
+    Set<Class> classes = new HashSet<Class>();
 
     @Override
     public void addClass(Class c) {
-        classList.add(c);
+        classes.add(c);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class JSONDeserializer implements Deserializer {
             JsonObject jsonObject = json.getAsJsonObject();
             String type = jsonObject.get("type").getAsString();
             JsonElement element = jsonObject.get("properties");
-            for (Class c : classList) {
+            for (Class c : classes) {
                 if (c.getSimpleName().equals(type)) {
                     return context.deserialize(element, c);
                 }

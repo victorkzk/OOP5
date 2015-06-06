@@ -10,6 +10,10 @@ public class Chair extends Furniture{
 
     private Type type;
 
+    public Chair() {
+
+    }
+
     public Chair(int length, int width, int height) {
         super(length, width, height);
         super.name = "Chair";

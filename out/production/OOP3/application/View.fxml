@@ -35,8 +35,8 @@
                <children>
                   <Button layoutX="8.0" layoutY="9.0" mnemonicParsing="false" onAction="#loadSerializer" prefHeight="25.0" prefWidth="131.0" text="Load serializer" />
                   <Button layoutX="8.0" layoutY="40.0" mnemonicParsing="false" onAction="#loadDeserializer" prefHeight="25.0" prefWidth="131.0" text="Load deserializer" />
-                  <CheckBox layoutX="145.0" layoutY="13.0" mnemonicParsing="false" onAction="#enableSerializerPlugin" prefHeight="17.0" prefWidth="66.0" text="Enable" />
-                  <CheckBox layoutX="145.0" layoutY="44.0" mnemonicParsing="false" onAction="#enableDeserializerPlugin" text="Enable" />
+                  <CheckBox fx:id="pluginSerializerCheckBox" disable="true" layoutX="145.0" layoutY="13.0" mnemonicParsing="false" onAction="#enableSerializerPlugin" prefHeight="17.0" prefWidth="66.0" text="Enable" />
+                  <CheckBox fx:id="pluginDeserializerCheckBox" disable="true" layoutX="145.0" layoutY="44.0" mnemonicParsing="false" onAction="#enableDeserializerPlugin" text="Enable" />
                </children>
             </AnchorPane>
         </content>

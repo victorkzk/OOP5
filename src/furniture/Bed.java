@@ -10,6 +10,10 @@ public class Bed extends Furniture {
 
     private Type type;
 
+    public Bed() {
+
+    }
+
     public Bed(int length, int width, int height) {
         super(length, width, height);
         super.name = "Bed";

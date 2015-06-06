@@ -1,17 +1,16 @@
 package application;
 
 import com.google.gson.*;
+import com.thoughtworks.xstream.XStream;
 import com.victorkzk.furniture.Furniture;
 import com.victorkzk.furniture.Serializer;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
-import java.util.*;
-
-import static java.nio.file.Files.readAllBytes;
-import static java.nio.file.Paths.get;
+import java.util.List;
 
 public class JSONSerializer implements Serializer {
 

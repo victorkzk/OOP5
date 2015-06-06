@@ -53,10 +53,10 @@ public class PluginLoader {
     }
 
     public Class loadDeserializer() {
-        return null;
+        return  loadPluginByInterfaceName("Deserializer");
     }
 
-    private Class loadPluginByInterfaceName(String interfaceName) {
+    public Class loadPluginByInterfaceName(String interfaceName) {
         try {
             URL jarURL = pluginFile.toURI().toURL();
             URLClassLoader classLoader = new URLClassLoader(new URL[]{jarURL});
@@ -68,13 +68,12 @@ public class PluginLoader {
                     name = name.replaceAll("/", ".");
                     name = name.replaceAll(".class", "");
                     Class <?> plugClass = classLoader.loadClass(name);
-                    Class<?>[] interfaces = plugClass.getInterfaces();
-
-                    System.out.println(interfaces[0].getName());
-
-                    if (interfaces[0].getName().endsWith(".Furniture")) {
-                        Class furnitureClass = classLoader.loadClass(plugClass.getName());
-                        return furnitureClass;
+                    Class <?>[] interfaces = plugClass.getInterfaces();
+                    for (int i = 0; i < interfaces.length; i++) {
+                        if (interfaces[i].getName().endsWith("." + interfaceName)) {
+                            Class furnitureClass = classLoader.loadClass(plugClass.getName());
+                            return furnitureClass;
+                        }
                     }
                 }
             }

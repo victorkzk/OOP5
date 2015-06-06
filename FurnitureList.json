@@ -2,34 +2,23 @@
   {
     "type": "Bed",
     "properties": {
-      "type": "WATERBED",
-      "material": "METAL",
-      "length": 245,
-      "width": 55,
-      "height": 55,
+      "type": "BUNK",
+      "material": "WOOD",
+      "length": 66,
+      "width": 66,
+      "height": 66,
       "name": "Bed"
     }
   },
   {
     "type": "Cabinetry",
     "properties": {
-      "type": "CLOSET",
+      "type": "PANTRY",
       "material": "WOOD",
-      "length": 55,
-      "width": 22,
-      "height": 55,
+      "length": 56,
+      "width": 33,
+      "height": 11,
       "name": "Cabinetry"
-    }
-  },
-  {
-    "type": "Chest",
-    "properties": {
-      "type": "CELLARETTE",
-      "material": "WOOD",
-      "length": 66,
-      "width": 66,
-      "height": 44,
-      "name": "Chest"
     }
   }
 ]

@@ -1,0 +1,20 @@
+<Object_list>
+<furniture.Bed>
+  <material>WOOD</material>
+  <length>66</length>
+  <width>66</width>
+  <height>66</height>
+  <name>Bed</name>
+  <type>BUNK</type>
+</furniture.Bed>
+<!-- -->
+<furniture.Cabinetry>
+  <material>WOOD</material>
+  <length>56</length>
+  <width>33</width>
+  <height>11</height>
+  <name>Cabinetry</name>
+  <type>PANTRY</type>
+</furniture.Cabinetry>
+<!-- -->
+</Object_list>
