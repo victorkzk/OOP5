@@ -46,7 +46,7 @@ public class Controller implements Initializable {
     private static ArrayList<Class> plugins = new ArrayList<>();
     private Class pluginSerializerClass = null;
     private Class pluginDeserializerClass = null;
-    private Serializer serializer = new JSONSerializer();
+    private SerializerArchiver serializerArchiver;
     private Deserializer deserializer = new JSONDeserializer();
     private Furniture furniture = null;
     private boolean createNew = false;
@@ -130,6 +130,8 @@ public class Controller implements Initializable {
                     setFields();
                 }
         );
+        serializerArchiver = new SerializerArchiver();
+        serializerArchiver.setSerializer(new JSONSerializer());
     }
 
     private void loadClassesToDeserializer() {
@@ -163,7 +165,7 @@ public class Controller implements Initializable {
         for (Furniture furniture : furnitureList) {
             objectList.add(furniture);
         }
-        serializer.serialize("FurnitureList" + serializer.getFileExtension(), objectList);
+        serializerArchiver.serialize("FurnitureList" + serializerArchiver.getFileExtension(), objectList);
     }
 
     @FXML
@@ -206,22 +208,27 @@ public class Controller implements Initializable {
 
     @FXML
     void enableSerializerPlugin() throws IllegalAccessException, InstantiationException {
-        if (serializer.getClass() == pluginSerializerClass) {
-            serializer = new JSONSerializer();
+        if (!pluginSerializerCheckBox.isSelected()) {
+            serializerArchiver.setSerializer(new JSONSerializer());
         }
         else {
-            serializer = (Serializer)pluginSerializerClass.newInstance();
+            serializerArchiver.setSerializer((Serializer)pluginSerializerClass.newInstance());
         }
     }
 
     @FXML
     void enableDeserializerPlugin() throws IllegalAccessException, InstantiationException {
-        if (deserializer.getClass() == pluginDeserializerClass) {
+        if (!pluginDeserializerCheckBox.isSelected()) {
             deserializer = new JSONDeserializer();
         }
         else {
             deserializer = (Deserializer)pluginDeserializerClass.newInstance();
         }
+    }
+
+    @FXML
+    void archiverEnableChange() {
+        serializerArchiver.setArchiverEnable(pluginArchiverCheckBox.isSelected());
     }
 
     private void createButton(int index) {
